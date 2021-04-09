@@ -12,3 +12,5 @@ export const LayoutProvider =({children})=>{
         </LayoutContext.Provider>
     )
 }
+// export const DeleteContext = createContext()
+// export const DeleteProvider =()=

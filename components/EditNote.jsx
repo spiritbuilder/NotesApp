@@ -14,11 +14,15 @@ import { Ionicons } from "react-native-vector-icons";
 
 
 const EditNote = ({ navigation, route }) => {
-  const [formdata, setFormData] = useState();
-  const [newnote, setNewwNote] = usestate(true);
+  const [formdata, setFormData] = useState({
+    title: "",
+    details: "",
+    id: new Date(),
+  });
+  const [newNote, setNewNote] = useState(true);
 
   useEffect(() => {
-    route.params ? setNewwNote(false) : setNewwNote(true);
+    route.params ? setNewNote(false) : setNewNote(true);
     const input = route.params
       ? route.params
       : {
@@ -27,17 +31,19 @@ const EditNote = ({ navigation, route }) => {
           id: new Date(),
         };
     setFormData(input);
-    console.log(form);
+    
   }, [navigation]);
 
   const handleSave = async (type) => {
     try {
       var jsonNotes = await AsyncStorage.getItem("allNotes");
-      var allNotes = JSON.parse(jsonNotes);
+      if(jsonNotes!=null){
+        var allNotes = JSON.parse(jsonNotes);
       if (newNote) {
         let addNote = { ...formdata, pinned: type };
         allNotes.push(addNote);
         await AsyncStorage.setItem("allNotes", JSON.stringify(allNotes) );
+        navigation.navigate("Notes")
       } else {
         let index = null;
         for (let i = 0; i < allNotes.length; i++) {
@@ -48,9 +54,19 @@ const EditNote = ({ navigation, route }) => {
         let replaceNote = { ...formdata, pinned: type };
         allNotes[index] = replaceNote;
         await AsyncStorage.setItem("allNotes", JSON.stringify(allNotes))
+        navigation.navigate("Notes")
+      }
+      }
+      else{
+        
+          let addNote = { ...formdata, pinned: type };
+          
+          await AsyncStorage.setItem("allNotes", JSON.stringify(addNote) );
+          navigation.navigate("Notes")
+        
       }
     } catch (e) {
-      setNotes(null);
+      
       alert(e);
     }
   };
@@ -78,7 +94,7 @@ const EditNote = ({ navigation, route }) => {
           />
         </View>
         <View>
-          <Text style={styles.label}>Description</Text>
+          <Text style={styles.label}>Content</Text>
           <TextInput
             multiline
             style={styles.multiline}

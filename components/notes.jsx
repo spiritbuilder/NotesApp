@@ -41,15 +41,17 @@ const Notes = ({ navigation }) => {
   const [singleLayout, setSingleLayout] = useContext(LayoutContext);
 
   const search = () => {
-    let notesCopy = notes.slice;
-    let result = notesCopy.filter((note) => {
-      return (
-        (note.title.lowerCase() === searchParam.lowerCase ||
-          note.details.lowerCase() === searchParam.lowerCase) &&
-        note.pinned == pinned
-      );
-    });
-    setResults(result);
+    if (notes != null) {
+      let notesCopy = notes.slice;
+      let result = notesCopy.filter((note) => {
+        return (
+          (note.title.lowerCase() === searchParam.lowerCase ||
+            note.details.lowerCase() === searchParam.lowerCase) &&
+          note.pinned == pinned
+        );
+      });
+      setResults(result);
+    }
   };
 
   return (
@@ -59,8 +61,8 @@ const Notes = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerText}>Notes</Text>
       </View>
-      <TouchableOpacity onPress={() => setSingleLayout(!singlelayout)}>
-        <Text>ToggleLayout</Text>
+      <TouchableOpacity style={styles.layout} onPress={() => setSingleLayout(!singleLayout)}>
+        <Text style={styles.layoutText}>Switch Layout</Text>
       </TouchableOpacity>
 
       <TextInput
@@ -74,11 +76,25 @@ const Notes = ({ navigation }) => {
         defaultValue={searchParam}
       />
       <View style={styles.pinned}>
-        <TouchableOpacity style={pinned?styles.on:styles.off} onPress={()=>setPinned(true)}>
-          <Text style={pinned?styles.pintxton:pintxtoff}>Pinned</Text>
+        <TouchableOpacity
+          style={pinned ? styles.on : styles.off}
+          onPress={() => {
+            setPinned(true);
+            search();
+          }}
+        >
+          <Text style={pinned ? styles.pintxton : styles.pintxtoff}>
+            Pinned
+          </Text>
         </TouchableOpacity>
-        <TouchableOpacity style={pinned?styles.off:styles.on} onPress={()=>setPinned(false)}>
-          <Text style={pinned?styles.pintxtoff:pintxton}>Other</Text>
+        <TouchableOpacity
+          style={pinned ? styles.off : styles.on}
+          onPress={() => {
+            setPinned(false);
+            search();
+          }}
+        >
+          <Text style={pinned ? styles.pintxtoff : styles.pintxton}>Other</Text>
         </TouchableOpacity>
       </View>
       <ScrollView
@@ -97,8 +113,8 @@ const Notes = ({ navigation }) => {
         ) : (
           <View style={styles.noNotes}>
             <Text>
-              You Currently do not have any notes stored,tap the feather icon to add
-              one
+              You Currently do not have any notes stored,tap the feather icon to
+              add one
             </Text>
           </View>
         )}
@@ -175,33 +191,54 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
-  pinned:{
-      width:"60%",
-      alignSelf:"center",
-      borderRadius:10,
-      borderWidth:2,
-      borderColor:"purple",
-      marginVertical:10
-      
+  pinned: {
+    width: "60%",
+    alignSelf: "center",
+    borderRadius: 2,
+    marginVertical: 10,
+    flexDirection: "row",
   },
-  on:{
-padding:10,
-backgroundColor:"purple"
+  on: {
+    padding: 10,
+    backgroundColor: "purple",
+    width: "50%",
+    borderRadius: 2,
+    justifyContent:"center",
+    alignItems:"center"
   },
-  off:{
-    backgroundColor:"#FFF",
-    padding:10,
+  off: {
+    backgroundColor: "#FFF",
+    padding: 10,
+    width: "50%",
+    borderRadius: 2,
+    justifyContent:"center",
+    alignItems:"center"
+  },
+  pintxtoff: {
+    color: "purple",
+    fontSize: 12,
+    fontWeight: 400,
+  },
+  pintxton: {
+    color: "#FFF",
+    fontSize: 12,
+    fontWeight: 400,
+  },
+  noNotes:{
+    justifyContent:"center",
+    alignItems:"center",
+    flex:1
+  },
+  layout:{
+    backgroundColor:"purple",
+    alignSelf:"flex-end",
+    borderRadius:4,
+    padding:8,
+    marginVertical:7,
+    marginRight:7
 
   },
-  pintxtoff:{
-    color:"purple",
-    fontSize:12,
-    fontWeight:400
-  },
-  pintxton:{
-    color:"#FFF",
-    fontSize:12,
-    fontWeight:400
+  layoutText:{
+    color:"white"
   }
-
 });
