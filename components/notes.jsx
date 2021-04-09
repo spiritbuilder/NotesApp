@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useContext } from "react";
 import {
   View,
   Text,
@@ -12,6 +12,7 @@ import {
 import Note from "./Note";
 import { Entypo } from "react-native-vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { LayoutContext } from "./LayoutContext";
 
 const Notes = ({ navigation }) => {
   const getNotes = async () => {
@@ -27,22 +28,28 @@ const Notes = ({ navigation }) => {
   const editNote = (note) => {
     navigation.navigate("EditNote", note);
   };
-  useEffect(
-    ()=>{
-      getNotes()
-    },[navigation]
-  );
+  useEffect(() => {
+    getNotes();
+  }, [navigation]);
 
   const [notes, setNotes] = useState();
 
-  const [results,setResults] =useState(notes)
-  
+  const [results, setResults] = useState(notes);
+
   const [searchParam, setSearchParam] = useState("");
-  const [pinned, setPinned]  = useState(true)
+  const [pinned, setPinned] = useState(true);
+  const [singleLayout, setSingleLayout] = useContext(LayoutContext);
 
   const search = () => {
     let notesCopy = notes.slice;
-    notesCopy.filter();
+    let result = notesCopy.filter((note) => {
+      return (
+        (note.title.lowerCase() === searchParam.lowerCase ||
+          note.details.lowerCase() === searchParam.lowerCase) &&
+        note.pinned == pinned
+      );
+    });
+    setResults(result);
   };
 
   return (
@@ -52,20 +59,27 @@ const Notes = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerText}>Notes</Text>
       </View>
-    <TouchableOpacity onPress={}>
-      <Text>ToggleLayout</Text>
-    </TouchableOpacity>
+      <TouchableOpacity onPress={() => setSingleLayout(!singlelayout)}>
+        <Text>ToggleLayout</Text>
+      </TouchableOpacity>
 
       <TextInput
         style={styles.input}
         placeholder="search"
         value={searchParam}
-        onChangeText={(searchParam) => setSearchParam(searchParam)}
+        onChangeText={(searchParam) => {
+          setSearchParam(searchParam);
+          search();
+        }}
         defaultValue={searchParam}
       />
-      <View>
-        <TouchableOpacity>Pinned</TouchableOpacity>
-        <TouchableOpacity>Other</TouchableOpacity>
+      <View style={styles.pinned}>
+        <TouchableOpacity style={pinned?styles.on:styles.off} onPress={()=>setPinned(true)}>
+          <Text style={pinned?styles.pintxton:pintxtoff}>Pinned</Text>
+        </TouchableOpacity>
+        <TouchableOpacity style={pinned?styles.off:styles.on} onPress={()=>setPinned(false)}>
+          <Text style={pinned?styles.pintxtoff:pintxton}>Other</Text>
+        </TouchableOpacity>
       </View>
       <ScrollView
         style={styles.scroll}
@@ -83,7 +97,7 @@ const Notes = ({ navigation }) => {
         ) : (
           <View style={styles.noNotes}>
             <Text>
-              You Currently do not have any notes stored,tap the feather to add
+              You Currently do not have any notes stored,tap the feather icon to add
               one
             </Text>
           </View>
@@ -161,4 +175,33 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  pinned:{
+      width:"60%",
+      alignSelf:"center",
+      borderRadius:10,
+      borderWidth:2,
+      borderColor:"purple",
+      marginVertical:10
+      
+  },
+  on:{
+padding:10,
+backgroundColor:"purple"
+  },
+  off:{
+    backgroundColor:"#FFF",
+    padding:10,
+
+  },
+  pintxtoff:{
+    color:"purple",
+    fontSize:12,
+    fontWeight:400
+  },
+  pintxton:{
+    color:"#FFF",
+    fontSize:12,
+    fontWeight:400
+  }
+
 });

@@ -1,9 +1,11 @@
-import React from "react";
+import React,{useContext} from "react";
 import { View, Text,  StyleSheet,TouchableOpacity } from "react-native";
 import { MaterialIcons } from "react-native-vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import{LayoutContext} from "./LayoutContext"
 
 const Note = ({ title, details,id, edit }) => {
+const[singleLayout, setSingleLayout] = useContext(LayoutContext)
 
   const handleDelete =async(id)=>{
     try {
@@ -24,7 +26,7 @@ const Note = ({ title, details,id, edit }) => {
   }
   return (
     <>
-    <TouchableOpacity style={styles.double} onPress={()=>edit()}>
+    <TouchableOpacity style={singleLayout?styles.single:styles.double} onPress={()=>edit()}>
       <Text style={styles.title}>{title}</Text>
       <Text style={styles.details}>
         {details.length > 20 ? `${details.slice(0, 20)}...` : details}
