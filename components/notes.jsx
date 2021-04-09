@@ -40,17 +40,17 @@ const Notes = ({ navigation }) => {
   const [pinned, setPinned] = useState(true);
   const [singleLayout, setSingleLayout] = useContext(LayoutContext);
   const [render, setRender] = useState(0);
-  useEffect(
-    async () => {
-      var jsonNotes = await AsyncStorage.getItem("allNotes");
-      if (jsonNotes != null) {
-        var allNotes = JSON.parse(jsonNotes);
+  const effect = async () => {
+    var jsonNotes = await AsyncStorage.getItem("allNotes");
+    if (jsonNotes != null) {
+      var allNotes = JSON.parse(jsonNotes);
 
-        setNotes(allNotes);
-        setResults(allNotes);
-      }
-    
-  }, [navigation]);
+      setNotes(allNotes);
+      setResults(allNotes);
+    }
+  };
+
+  useEffect(effect, [navigation]);
 
   const rendered = () => {
     setRender(render + 1);
@@ -59,20 +59,15 @@ const Notes = ({ navigation }) => {
   const search = () => {
     if (notes != undefined) {
       let notesCopy = notes.slice;
-      let result = [];
-      for (let i = 0; i < notesCopy.length; i++) {
-        if (
-          notesCopy.title == searchParam ||
-          notesCopy.details == searchParam &&
-            notesCopy.pinned == pinned
-        ) {
-          result.push(notesCopy[i]);
-        }
+      notesCopy.filter(note=>{
+        return (note.title == searchParam ||
+        note.details == searchParam) && note.pinned == pinned
       }
+      )
+      
       setResults(result);
-      alert(result)
+      alert(result);
     }
-    
   };
 
   return (
@@ -151,10 +146,6 @@ const Notes = ({ navigation }) => {
           }}
         >
           <Entypo name="feather" size={24} color="#FFF" />
-        </TouchableOpacity>
-
-        <TouchableOpacity onPress={async () => alert(notes)}>
-          <Text>See me</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
