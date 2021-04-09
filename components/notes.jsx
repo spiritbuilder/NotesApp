@@ -17,9 +17,12 @@ import { LayoutContext } from "./LayoutContext";
 const Notes = ({ navigation }) => {
   const getNotes = async () => {
     try {
-      var jsonNotes = await AsyncStorage.getItem("allnotes");
-      var allNotes = JSON.parse(jsonNotes);
-      setNotes(allNotes);
+      var jsonNotes = await AsyncStorage.getItem("allNotes");
+      if (jsonNotes != null) {
+        var allNotes = JSON.parse(jsonNotes);
+        alert(allNotes);
+        setNotes(allNotes);
+      }
     } catch {
       setNotes(null);
     }
@@ -28,30 +31,48 @@ const Notes = ({ navigation }) => {
   const editNote = (note) => {
     navigation.navigate("EditNote", note);
   };
-  useEffect(() => {
-    getNotes();
-  }, [navigation]);
 
-  const [notes, setNotes] = useState();
+  const [notes, setNotes] = useState(null);
 
   const [results, setResults] = useState(notes);
 
   const [searchParam, setSearchParam] = useState("");
   const [pinned, setPinned] = useState(true);
   const [singleLayout, setSingleLayout] = useContext(LayoutContext);
+  const [render, setRender] = useState(0);
+  useEffect(
+    async () => {
+      var jsonNotes = await AsyncStorage.getItem("allNotes");
+      if (jsonNotes != null) {
+        var allNotes = JSON.parse(jsonNotes);
+
+        setNotes(allNotes);
+        setResults(allNotes);
+      }
+    
+  }, [navigation]);
+
+  const rendered = () => {
+    setRender(render + 1);
+  };
 
   const search = () => {
-    if (notes != null) {
+    if (notes != undefined) {
       let notesCopy = notes.slice;
-      let result = notesCopy.filter((note) => {
-        return (
-          (note.title.lowerCase() === searchParam.lowerCase ||
-            note.details.lowerCase() === searchParam.lowerCase) &&
-          note.pinned == pinned
-        );
-      });
+      let result = [];
+      for (let i = 0; i < notesCopy.length; i++) {
+        if (
+          notesCopy.title == searchParam ||
+          notesCopy.details == searchParam &&
+            notesCopy.pinned == pinned
+        ) {
+          result.push(notesCopy[i]);
+        }
+      }
       setResults(result);
+      alert(result)
     }
+    
   };
 
   return (
@@ -61,7 +82,10 @@ const Notes = ({ navigation }) => {
       <View style={styles.header}>
         <Text style={styles.headerText}>Notes</Text>
       </View>
-      <TouchableOpacity style={styles.layout} onPress={() => setSingleLayout(!singleLayout)}>
+      <TouchableOpacity
+        style={styles.layout}
+        onPress={() => setSingleLayout(!singleLayout)}
+      >
         <Text style={styles.layoutText}>Switch Layout</Text>
       </TouchableOpacity>
 
@@ -101,18 +125,19 @@ const Notes = ({ navigation }) => {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContainer}
       >
-        {notes ? (
+        {results != null ? (
           results.map((note, index) => (
             <Note
               title={note.title}
               details={note.details}
               id={note.id}
-              edit={() => editNote({ ...note, index: index })}
+              render={() => rendered()}
+              edit={() => editNote({ ...note })}
             />
           ))
         ) : (
           <View style={styles.noNotes}>
-            <Text>
+            <Text style={styles.noNoteText}>
               You Currently do not have any notes stored,tap the feather icon to
               add one
             </Text>
@@ -125,7 +150,11 @@ const Notes = ({ navigation }) => {
             navigation.navigate("EditNote", "new");
           }}
         >
-          <Entypo name="feather" size={22} color="#FFF" />
+          <Entypo name="feather" size={24} color="#FFF" />
+        </TouchableOpacity>
+
+        <TouchableOpacity onPress={async () => alert(notes)}>
+          <Text>See me</Text>
         </TouchableOpacity>
       </ScrollView>
     </SafeAreaView>
@@ -133,6 +162,7 @@ const Notes = ({ navigation }) => {
 };
 
 export default Notes;
+
 const styles = StyleSheet.create({
   input: {
     width: "80%",
@@ -158,14 +188,14 @@ const styles = StyleSheet.create({
   },
   add: {
     backgroundColor: "purple",
-    height: 40,
-    width: 40,
+    height: 60,
+    width: 60,
     justifyContent: "center",
     alignItems: "center",
     position: "absolute",
     right: 20,
     bottom: 20,
-    borderRadius: 20,
+    borderRadius: 30,
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -191,6 +221,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
   },
+  noNoteText: {
+    textAlign: "center",
+  },
   pinned: {
     width: "60%",
     alignSelf: "center",
@@ -203,42 +236,41 @@ const styles = StyleSheet.create({
     backgroundColor: "purple",
     width: "50%",
     borderRadius: 2,
-    justifyContent:"center",
-    alignItems:"center"
+    justifyContent: "center",
+    alignItems: "center",
   },
   off: {
     backgroundColor: "#FFF",
     padding: 10,
     width: "50%",
     borderRadius: 2,
-    justifyContent:"center",
-    alignItems:"center"
+    justifyContent: "center",
+    alignItems: "center",
   },
   pintxtoff: {
     color: "purple",
     fontSize: 12,
-    fontWeight: 400,
+    fontWeight: "400",
   },
   pintxton: {
     color: "#FFF",
     fontSize: 12,
-    fontWeight: 400,
+    fontWeight: "400",
   },
-  noNotes:{
-    justifyContent:"center",
-    alignItems:"center",
-    flex:1
+  noNotes: {
+    justifyContent: "center",
+    alignItems: "center",
+    flex: 1,
   },
-  layout:{
-    backgroundColor:"purple",
-    alignSelf:"flex-end",
-    borderRadius:4,
-    padding:8,
-    marginVertical:7,
-    marginRight:7
-
+  layout: {
+    backgroundColor: "purple",
+    alignSelf: "flex-end",
+    borderRadius: 4,
+    padding: 8,
+    marginVertical: 7,
+    marginRight: 7,
   },
-  layoutText:{
-    color:"white"
-  }
+  layoutText: {
+    color: "white",
+  },
 });

@@ -23,20 +23,16 @@ const EditNote = ({ navigation, route }) => {
 
   useEffect(() => {
     route.params ? setNewNote(false) : setNewNote(true);
-    const input = route.params
-      ? route.params
-      : {
-          title: "",
-          details: "",
-          id: new Date(),
-        };
-    setFormData(input);
+    route.params? setFormData(route.params):null
+      
+    
     
   }, [navigation]);
 
   const handleSave = async (type) => {
     try {
       var jsonNotes = await AsyncStorage.getItem("allNotes");
+      
       if(jsonNotes!=null){
         var allNotes = JSON.parse(jsonNotes);
       if (newNote) {
@@ -59,7 +55,7 @@ const EditNote = ({ navigation, route }) => {
       }
       else{
         
-          let addNote = { ...formdata, pinned: type };
+          let addNote = [{ ...formdata, pinned: type }];
           
           await AsyncStorage.setItem("allNotes", JSON.stringify(addNote) );
           navigation.navigate("Notes")
