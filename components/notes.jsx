@@ -13,6 +13,7 @@ import Note from "./Note";
 import { Entypo } from "react-native-vector-icons";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { LayoutContext } from "./LayoutContext";
+import axios from "axios";
 
 const Notes = ({ navigation }) => {
   const getNotes = async () => {
@@ -27,7 +28,10 @@ const Notes = ({ navigation }) => {
       setNotes(null);
     }
   };
-
+const findAll= async()=>{
+ const notes = axios.get("localhost:5000/notes")
+ setNotes(notes)
+}
   const editNote = (note) => {
     navigation.navigate("EditNote", note);
   };
@@ -49,22 +53,26 @@ const Notes = ({ navigation }) => {
       setResults(allNotes);
     }
   };
+  useEffect(()=>{
+    findAll();
+  },[])
 
-  useEffect(effect, [navigation]);
+  // useEffect(effect, [navigation]);
 
-  const rendered = () => {
-    setRender(render + 1);
-  };
+  // const rendered = () => {
+  //   setRender(render + 1);
+  // };
 
   const search = () => {
     if (notes != undefined) {
       let notesCopy = notes.slice;
-      notesCopy.filter(note=>{
-        return (note.title == searchParam ||
-        note.details == searchParam) && note.pinned == pinned
-      }
-      )
-      
+      notesCopy.filter((note) => {
+        return (
+          (note.title == searchParam || note.details == searchParam) &&
+          note.pinned == pinned
+        );
+      });
+
       setResults(result);
       alert(result);
     }
@@ -120,7 +128,7 @@ const Notes = ({ navigation }) => {
         style={styles.scroll}
         contentContainerStyle={styles.scrollContainer}
       >
-        {results != null ? (
+        {/* {results != null ? (
           results.map((note, index) => (
             <Note
               title={note.title}
@@ -137,8 +145,9 @@ const Notes = ({ navigation }) => {
               add one
             </Text>
           </View>
-        )}
+        )} */}
 
+<Text>{notes}</Text>
         <TouchableOpacity
           style={styles.add}
           onPress={() => {
